@@ -2,13 +2,11 @@ import type { Repository } from '@/types/portfolio';
 
 interface RepositoryStatusProps {
   repos: Repository[];
-  authStatus: string | null;
   diagnosticInfo: string | null;
 }
 
 export default function RepositoryStatus({
   repos,
-  authStatus,
   diagnosticInfo,
 }: RepositoryStatusProps) {
   return (

@@ -1,26 +1,22 @@
-// eslint.config.js
-import next from '@next/eslint-plugin-next';
+import nextPlugin from '@next/eslint-plugin-next';
 import tseslint from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
 export default [
-  // Configurações específicas do Next.js
-  ...next.configs.recommended,
   {
+    plugins: {
+      '@next/next': nextPlugin,
+    },
     rules: {
-      ...next.rules.recommended,
-      '@next/next/no-html-link-for-pages': 'off', // Opcional: desativa se usar Link do Next.js
+      '@next/next/no-html-link-for-pages': 'off',
+      '@next/next/no-img-element': 'off',
     },
   },
-  
-  // Configurações globais
   {
-    ignores: ['node_modules/**', '.next/**', 'dist/**', '*.config.js'],
+    ignores: ['node_modules/**', '.next/**', 'dist/**', '*.config.js', 'lib/**'],
   },
-  
-  // Configurações para arquivos TypeScript/JavaScript
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     languageOptions: {

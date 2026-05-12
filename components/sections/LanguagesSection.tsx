@@ -30,19 +30,6 @@ export default function LanguagesSection({ repos }: LanguagesSectionProps) {
   const languageColors = getLanguageColors();
   const languageLogos = getLanguageLogos();
 
-  const colorMap: Record<string, string> = {
-    TypeScript: '59, 130, 246',
-    JavaScript: '245, 158, 11',
-    Python: '34, 197, 94',
-    Java: '239, 68, 68',
-    HTML: '249, 115, 22',
-    CSS: '168, 85, 247',
-    Shell: '132, 204, 22',
-    Go: '6, 182, 212',
-    Rust: '115, 115, 115',
-    Outros: '156, 163, 175',
-  };
-
   return (
     <section className="py-16 bg-gray-50 border-t border-gray-200">
       <div className="container mx-auto px-4">

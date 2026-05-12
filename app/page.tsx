@@ -9,13 +9,12 @@ import RepositoryStatus from '@/components/sections/RepositoryStatus';
 import ChallengesSection from '@/components/sections/ChallengesSection';
 import ProjectsSection from '@/components/sections/ProjectsSection';
 import LanguagesSection from '@/components/sections/LanguagesSection';
-import SkillsSection from '@/components/sections/SkillsSection';
 import OctoMindSection from '@/components/sections/OctoMindSection';
 import ContactSection from '@/components/sections/ContactSection';
 import Footer from '@/components/Footer';
 
 export default function Portfolio() {
-  const { repos, loading, error, authStatus, diagnosticInfo } = usePortfolioData();
+  const { repos, loading, authStatus, diagnosticInfo } = usePortfolioData();
   const GITHUB_USERNAME = process.env.NEXT_PUBLIC_GITHUB_USERNAME || 'meuphilim';
 
   if (loading) {
@@ -30,7 +29,7 @@ export default function Portfolio() {
         <HeroSection username={GITHUB_USERNAME} />
         <OctoMindBanner repos={repos} username={GITHUB_USERNAME} />
         <ChallengesSection />
-        <RepositoryStatus repos={repos} authStatus={authStatus} diagnosticInfo={diagnosticInfo} />
+        <RepositoryStatus repos={repos} diagnosticInfo={diagnosticInfo} />
         <ProjectsSection repos={repos} username={GITHUB_USERNAME} />
         <LanguagesSection repos={repos} />
         {/* <LanguagesSection username={GITHUB_USERNAME} /> */}
