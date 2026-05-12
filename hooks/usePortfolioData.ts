@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Repository, PortfolioData } from '@/types/portfolio';
+import { fetchUserRepositories, getFallbackRepos } from '@/services/github.service';
 
 const CACHE_KEY = 'github_repos_cache';
 const CACHE_DURATION = 1000 * 60 * 15;
@@ -10,39 +11,6 @@ interface CacheData {
   repos: Repository[];
   timestamp: number;
 }
-
-const FALLBACK_REPOS: Repository[] = [
-  {
-    id: 1,
-    name: 'portfolio-generator',
-    description: 'Gerador automático de portfólio GitHub com deploy automático',
-    html_url: 'https://github.com/meuphilim/portfolio-generator',
-    homepage: null,
-    language: 'TypeScript',
-    topics: ['portfolio', 'github', 'automation', 'nextjs'],
-    updated_at: new Date().toISOString(),
-    stargazers_count: 0,
-    forks_count: 0,
-    owner: {
-      login: 'meuphilim',
-    },
-  },
-  {
-    id: 2,
-    name: 'octomind',
-    description: 'Sistema inteligente de automação para portfólios GitHub',
-    html_url: 'https://github.com/meuphilim/octomind',
-    homepage: null,
-    language: 'JavaScript',
-    topics: ['automation', 'github-actions', 'portfolio'],
-    updated_at: new Date().toISOString(),
-    stargazers_count: 0,
-    forks_count: 0,
-    owner: {
-      login: 'meuphilim',
-    },
-  },
-];
 
 function getCache(): Repository[] | null {
   if (typeof window === 'undefined') return null;
@@ -96,7 +64,7 @@ async function fetchWithRetry(
 }
 
 export function usePortfolioData(): PortfolioData {
-  const [repos, setRepos] = useState<Repository[]>(FALLBACK_REPOS);
+  const [repos, setRepos] = useState<Repository[]>(getFallbackRepos() as Repository[]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [authStatus, setAuthStatus] = useState<string | null>('fallback');
@@ -137,8 +105,8 @@ export function usePortfolioData(): PortfolioData {
         );
 
         if (response.status === 403 || response.status === 429) {
-          const resetTime = response.headers.get('X-RateLimit-Reset');
           const remaining = response.headers.get('X-RateLimit-Remaining');
+          // eslint-disable-next-line no-console
           console.warn(`Rate limit excedido. Restam: ${remaining}`);
 
           const cached = getCache();
@@ -155,28 +123,30 @@ export function usePortfolioData(): PortfolioData {
         if (response.ok) {
           const data = await response.json();
           const filteredRepos = data.filter(
-            (repo: any) =>
+            (repo: Repository & { fork?: boolean; archived?: boolean; private?: boolean }) =>
               !repo.fork &&
               !repo.archived &&
               !repo.private &&
               repo.name &&
-              !repo.name.startsWith('.'),
+              !repo.name.startsWith('.')
           );
 
+          setCache(filteredRepos);
           setRepos(filteredRepos);
-          setAuthStatus('public');
+          setAuthStatus(GITHUB_TOKEN ? 'token' : 'public');
           setDiagnosticInfo(
-            `✅ Conectado à API do GitHub - ${filteredRepos.length} repositórios encontrados`,
+            `Conectado à API do GitHub - ${filteredRepos.length} repositórios encontrados`
           );
         } else {
           throw new Error(`API GitHub retornou: ${response.status}`);
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.warn('⚠️ Não foi possível conectar à API do GitHub, usando dados de exemplo');
         const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido';
         setError(errorMessage);
         setAuthStatus('fallback');
-        setDiagnosticInfo('⚠️ Usando dados de exemplo (não foi possível conectar à API do GitHub)');
+        setDiagnosticInfo('Usando dados de exemplo (não foi possível conectar à API do GitHub)');
       } finally {
         setLoading(false);
       }

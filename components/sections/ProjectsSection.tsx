@@ -1,40 +1,36 @@
 import type { Repository } from '@/types/portfolio';
-import { getLanguageEmoji } from '@/utils/portfolio';
-import React, { useState, useEffect } from 'react';
+import { getLanguageEmoji, getLanguageColor } from '@/utils/portfolio';
+import { useProjectLanguages } from '@/hooks/useProjectLanguages';
 
 interface ProjectsSectionProps {
   repos: Repository[];
   username: string;
 }
 
+interface LanguageInfo {
+  name: string;
+  percentage: string;
+}
+
+function calculateLanguages(
+  langData: Record<string, number> | undefined
+): LanguageInfo[] {
+  if (!langData) return [];
+
+  const totalBytes = Object.values(langData).reduce((a, b) => a + b, 0);
+  if (totalBytes === 0) return [];
+
+  return Object.entries(langData)
+    .map(([lang, bytes]) => ({
+      name: lang,
+      percentage: ((bytes / totalBytes) * 100).toFixed(1),
+    }))
+    .sort((a, b) => parseFloat(b.percentage) - parseFloat(a.percentage))
+    .slice(0, 3);
+}
+
 export default function ProjectsSection({ repos, username }: ProjectsSectionProps) {
-  const [repoLanguages, setRepoLanguages] = useState<Record<string, Record<string, number>>>({});
-
-  // Carrega as linguagens reais de cada repositório
-  useEffect(() => {
-    const fetchLanguagesForRepos = async () => {
-      const langData: Record<string, Record<string, number>> = {};
-
-      for (const repo of repos) {
-        try {
-          const response = await fetch(
-            `https://api.github.com/repos/${username}/${repo.name}/languages`,
-          );
-          if (!response.ok) continue;
-
-          const data: Record<string, number> = await response.json();
-          langData[repo.name] = data;
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error(`Erro ao buscar linguagens para ${repo.name}:`, error);
-        }
-      }
-
-      setRepoLanguages(langData);
-    };
-
-    fetchLanguagesForRepos();
-  }, [repos, username]);
+  const repoLanguages = useProjectLanguages(repos, username);
 
   return (
     <section id="projects" className="py-16 bg-white">
@@ -46,19 +42,7 @@ export default function ProjectsSection({ repos, username }: ProjectsSectionProp
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {repos.slice(0, 6).map((repo) => {
-            const totalBytes = repoLanguages[repo.name]
-              ? Object.values(repoLanguages[repo.name]).reduce((a, b) => a + b, 0)
-              : 0;
-
-            const languages = repoLanguages[repo.name]
-              ? Object.entries(repoLanguages[repo.name])
-                  .map(([lang, bytes]) => ({
-                    name: lang,
-                    percentage: ((bytes / totalBytes) * 100).toFixed(1),
-                  }))
-                  .sort((a, b) => parseFloat(b.percentage) - parseFloat(a.percentage))
-                  .slice(0, 3)
-              : [];
+            const languages = calculateLanguages(repoLanguages[repo.name]);
 
             return (
               <div
@@ -78,7 +62,6 @@ export default function ProjectsSection({ repos, username }: ProjectsSectionProp
                     {repo.description || 'Sem descrição disponível.'}
                   </p>
 
-                  {/* Linguagem principal */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-2">
                       <span className="text-lg">{getLanguageEmoji(repo.language)}</span>
@@ -89,7 +72,6 @@ export default function ProjectsSection({ repos, username }: ProjectsSectionProp
                     </span>
                   </div>
 
-                  {/* Barra de porcentagem por linguagem */}
                   {languages.length > 0 && (
                     <div className="mb-4">
                       {languages.map((lang) => (
@@ -102,8 +84,7 @@ export default function ProjectsSection({ repos, username }: ProjectsSectionProp
                               className="h-full group relative"
                               style={{
                                 width: `${lang.percentage}%`,
-                                backgroundColor:
-                                  getLanguageColor(lang.name) || getLanguageColor('Outros'),
+                                backgroundColor: getLanguageColor(lang.name),
                               }}
                             >
                               {parseFloat(lang.percentage) > 10 && (
@@ -121,7 +102,6 @@ export default function ProjectsSection({ repos, username }: ProjectsSectionProp
                     </div>
                   )}
 
-                  {/* Topics */}
                   {repo.topics && repo.topics.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-4">
                       {repo.topics.slice(0, 3).map((topic) => (
@@ -140,7 +120,6 @@ export default function ProjectsSection({ repos, username }: ProjectsSectionProp
                     </div>
                   )}
 
-                  {/* Botões */}
                   <div className="flex space-x-2 mt-auto">
                     <a
                       href={repo.html_url}
@@ -182,29 +161,4 @@ export default function ProjectsSection({ repos, username }: ProjectsSectionProp
       </div>
     </section>
   );
-}
-
-// Função simples para retornar cor baseada na linguagem
-function getLanguageColor(name: string): string {
-  const colors: Record<string, string> = {
-    TypeScript: '#3B82F6',
-    JavaScript: '#F59E0B',
-    Python: '#22C55E',
-    Java: '#EF4444',
-    HTML: '#F97316',
-    CSS: '#8B5CF6',
-    Shell: '#84CC16',
-    Go: '#06B6D4',
-    Rust: '#737373',
-    Dockerfile: '#607D8B',
-    C: '#555555',
-    'C++': '#F34B7D',
-    'C#': '#272727',
-    PHP: '#777BB4',
-    Ruby: '#CC342D',
-    Kotlin: '#7F52FF',
-    Swift: '#F0533E',
-    Outros: '#9CA3AF',
-  };
-  return colors[name] || '#' + Math.floor(Math.random() * 16777215).toString(16);
 }

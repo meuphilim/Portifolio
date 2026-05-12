@@ -50,6 +50,30 @@ export function getLanguageColors(): Record<string, string> {
   };
 }
 
+export function getLanguageColor(name: string): string {
+  const colors: Record<string, string> = {
+    TypeScript: '#3B82F6',
+    JavaScript: '#F59E0B',
+    Python: '#22C55E',
+    Java: '#EF4444',
+    HTML: '#F97316',
+    CSS: '#8B5CF6',
+    Shell: '#84CC16',
+    Go: '#06B6D4',
+    Rust: '#737373',
+    Dockerfile: '#607D8B',
+    C: '#555555',
+    'C++': '#F34B7D',
+    'C#': '#272727',
+    PHP: '#777BB4',
+    Ruby: '#CC342D',
+    Kotlin: '#7F52FF',
+    Swift: '#F0533E',
+    Outros: '#9CA3AF',
+  };
+  return colors[name] || colors['Outros'];
+}
+
 export function getLanguageLogos(): Record<string, string> {
   return {
     TypeScript: 'typescript',
