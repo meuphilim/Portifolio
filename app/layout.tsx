@@ -32,21 +32,12 @@ export const metadata: Metadata = {
     siteName: 'Portfólio | meuphilim',
     locale: 'pt_BR',
     type: 'website',
-    images: [
-      {
-        url: `${basePath}/og-image.png`,
-        width: 1200,
-        height: 630,
-        alt: 'Imagem de capa do portfólio de meuphilim',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Portfólio de Desenvolvedor | meuphilim',
     description:
       'Explore o portfólio profissional de meuphilim com projetos diretamente do GitHub.',
-    images: [`${basePath}/og-image.png`],
     creator: '@meuphilim',
   },
   robots: {
@@ -76,7 +67,6 @@ export default function RootLayout({
     <html lang="pt-BR">
       <head>
         <link rel="icon" href={`${basePath}/favicon.ico`} sizes="any" />
-        <link rel="icon" href={`${basePath}/icon.svg`} type="image/svg+xml" />
         <link rel="apple-touch-icon" href={`${basePath}/apple-touch-icon.png`} />
         <link rel="manifest" href={`${basePath}/site.webmanifest`} />
         <meta name="theme-color" content="#0f172a" />
