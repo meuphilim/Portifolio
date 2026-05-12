@@ -1,6 +1,7 @@
 import type { Repository } from '@/types/portfolio';
-import { getLanguageEmoji } from '@/utils/portfolio';
-import React, { useState, useEffect } from 'react';
+import { getLanguageEmoji, getLanguageColors } from '@/utils/portfolio';
+import { useProjectLanguages } from '@/hooks/useProjectLanguages';
+import React from 'react';
 
 interface ProjectsSectionProps {
   repos: Repository[];
@@ -8,32 +9,8 @@ interface ProjectsSectionProps {
 }
 
 export default function ProjectsSection({ repos, username }: ProjectsSectionProps) {
-  const [repoLanguages, setRepoLanguages] = useState<Record<string, Record<string, number>>>({});
-
-  // Carrega as linguagens reais de cada repositório
-  useEffect(() => {
-    const fetchLanguagesForRepos = async () => {
-      const langData: Record<string, Record<string, number>> = {};
-
-      for (const repo of repos) {
-        try {
-          const response = await fetch(
-            `https://api.github.com/repos/${username}/${repo.name}/languages`,
-          );
-          if (!response.ok) continue;
-
-          const data: Record<string, number> = await response.json();
-          langData[repo.name] = data;
-        } catch (error) {
-          console.error(`Erro ao buscar linguagens para ${repo.name}:`, error);
-        }
-      }
-
-      setRepoLanguages(langData);
-    };
-
-    fetchLanguagesForRepos();
-  }, [repos, username]);
+  const { repoLanguages } = useProjectLanguages(repos, username);
+  const colors = getLanguageColors();
 
   return (
     <section id="projects" className="py-16 bg-white">
@@ -101,8 +78,7 @@ export default function ProjectsSection({ repos, username }: ProjectsSectionProp
                               className="h-full group relative"
                               style={{
                                 width: `${lang.percentage}%`,
-                                backgroundColor:
-                                  getLanguageColor(lang.name) || getLanguageColor('Outros'),
+                                backgroundColor: `#${colors[lang.name] || colors['Outros'] || '9CA3AF'}`,
                               }}
                             >
                               {parseFloat(lang.percentage) > 10 && (
@@ -181,29 +157,4 @@ export default function ProjectsSection({ repos, username }: ProjectsSectionProp
       </div>
     </section>
   );
-}
-
-// Função simples para retornar cor baseada na linguagem
-function getLanguageColor(name: string): string {
-  const colors: Record<string, string> = {
-    TypeScript: '#3B82F6',
-    JavaScript: '#F59E0B',
-    Python: '#22C55E',
-    Java: '#EF4444',
-    HTML: '#F97316',
-    CSS: '#8B5CF6',
-    Shell: '#84CC16',
-    Go: '#06B6D4',
-    Rust: '#737373',
-    Dockerfile: '#607D8B',
-    C: '#555555',
-    'C++': '#F34B7D',
-    'C#': '#272727',
-    PHP: '#777BB4',
-    Ruby: '#CC342D',
-    Kotlin: '#7F52FF',
-    Swift: '#F0533E',
-    Outros: '#9CA3AF',
-  };
-  return colors[name] || '#' + Math.floor(Math.random() * 16777215).toString(16);
 }

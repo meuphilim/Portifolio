@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { Repository } from '@/types/portfolio';
 import { getLanguageColors, getLanguageLogos } from '@/utils/portfolio';
-import { fetchLanguages } from '@/utils/fetchLanguages';
+import { fetchAllRepositoryLanguages } from '@/services/github.service';
 
 interface LanguagesSectionProps {
   repos: Repository[];
@@ -13,7 +13,7 @@ export default function LanguagesSection({ repos }: LanguagesSectionProps) {
 
   useEffect(() => {
     const load = async () => {
-      const data = await fetchLanguages(repos);
+      const data = await fetchAllRepositoryLanguages(repos);
       setLanguageStats(data);
     };
 
