@@ -25,6 +25,7 @@ export default function ProjectsSection({ repos, username }: ProjectsSectionProp
           const data: Record<string, number> = await response.json();
           langData[repo.name] = data;
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.error(`Erro ao buscar linguagens para ${repo.name}:`, error);
         }
       }

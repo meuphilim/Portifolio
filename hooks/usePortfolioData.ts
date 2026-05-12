@@ -118,6 +118,7 @@ export function usePortfolioData(): PortfolioData {
           return;
         }
 
+        // eslint-disable-next-line no-console
         console.log('🔍 Tentando buscar repositórios...');
         setDiagnosticInfo('Conectando à API do GitHub...');
 

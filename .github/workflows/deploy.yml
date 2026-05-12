@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    # Atualizar automaticamente a cada 12 horas
     - cron: '0 */12 * * *'
   workflow_dispatch:
 
@@ -51,10 +50,12 @@ jobs:
           GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME || github.repository_owner }}
           NEXT_PUBLIC_GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME || github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTIONS: 'true'
         run: |
           echo "🔧 Configurando variáveis de ambiente..."
           echo "GITHUB_USERNAME=${GITHUB_USERNAME}" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_GITHUB_USERNAME=${GITHUB_USERNAME}" >> $GITHUB_ENV
+          echo "GITHUB_ACTIONS=true" >> $GITHUB_ENV
           echo "📊 Gerando dados do portfólio..."
           node update_catalog.js
 
@@ -63,6 +64,7 @@ jobs:
           GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME || github.repository_owner }}
           NEXT_PUBLIC_GITHUB_USERNAME: ${{ secrets.GITHUB_USERNAME || github.repository_owner }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTIONS: 'true'
         run: |
           echo "🔨 Iniciando build do Next.js..."
           npm run build

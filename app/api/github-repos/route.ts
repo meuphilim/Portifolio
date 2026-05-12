@@ -91,6 +91,7 @@ async function fetchGitHubRepos(username: string, token?: string): Promise<Repos
         !repo.fork && !repo.archived && !repo.private && repo.name && !repo.name.startsWith('.'),
     );
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Erro ao buscar repositórios do GitHub:', error);
     throw error;
   }
@@ -102,11 +103,13 @@ export async function GET(): Promise<NextResponse<ApiResponse>> {
       process.env.GITHUB_USERNAME || process.env.NEXT_PUBLIC_GITHUB_USERNAME || 'meuphilim';
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
+    // eslint-disable-next-line no-console
     console.log(`🔍 Buscando repositórios para: ${GITHUB_USERNAME}`);
 
     try {
       const repos = await fetchGitHubRepos(GITHUB_USERNAME, GITHUB_TOKEN);
 
+      // eslint-disable-next-line no-console
       console.log(`📚 Encontrados ${repos.length} repositórios`);
 
       return NextResponse.json({
@@ -116,6 +119,7 @@ export async function GET(): Promise<NextResponse<ApiResponse>> {
         auth: GITHUB_TOKEN ? 'token' : 'publico',
       });
     } catch (apiError) {
+      // eslint-disable-next-line no-console
       console.warn('⚠️ API do GitHub falhou, usando dados de fallback');
 
       return NextResponse.json({
@@ -127,6 +131,7 @@ export async function GET(): Promise<NextResponse<ApiResponse>> {
       });
     }
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('❌ Erro crítico:', error);
 
     return NextResponse.json(
